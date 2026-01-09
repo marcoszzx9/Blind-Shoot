@@ -7,6 +7,15 @@ local executor =
     or getexecutorname and getexecutorname()
     or "Unknown"
 
+--// SERVICES
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local UIS = game:GetService("UserInputService")
+local Camera = workspace.CurrentCamera
+
+local LP = Players.LocalPlayer
+local Mouse = LP:GetMouse()
+
 --// WINDOW
 local Window = Rayfield:CreateWindow({
     Name = "Hypershoot | Private Test Panel",
@@ -25,15 +34,6 @@ local CombatTab = Window:CreateTab("Combat", 4483362458)
 local VisualTab = Window:CreateTab("Visual", 4483362458)
 local PlayerTab = Window:CreateTab("Player", 4483362458)
 local MiscTab   = Window:CreateTab("Misc",   4483362458)
-
---// SERVICES
-local Players = game:GetService("Players")
-local RunService = game:GetService("RunService")
-local UIS = game:GetService("UserInputService")
-local Camera = workspace.CurrentCamera
-
-local LP = Players.LocalPlayer
-local Mouse = LP:GetMouse()
 
 --// INFO
 CombatTab:CreateParagraph({
@@ -62,6 +62,7 @@ local Flags = {
 -- UTILS
 ------------------------------------------------
 local function isEnemy(char)
+    if not LP.Character then return false end
     return char
         and char:FindFirstChild("Humanoid")
         and char:GetAttribute("Team") ~= LP.Character:GetAttribute("Team")
@@ -213,6 +214,12 @@ local function hookTool(tool)
     end
 end
 
+if LP.Character then
+    for _, t in pairs(LP.Character:GetChildren()) do
+        hookTool(t)
+    end
+end
+
 LP.CharacterAdded:Connect(function(char)
     char.ChildAdded:Connect(hookTool)
 end)
@@ -234,20 +241,20 @@ RunService.RenderStepped:Connect(function()
 end)
 
 ------------------------------------------------
--- RAYFIELD TOGGLES
+-- RAYFIELD TOGGLES (FIXED)
 ------------------------------------------------
-CombatTab:CreateToggle({Name="Aimbot (RMB)", Callback=function(v) Flags.Aimbot=v end})
-CombatTab:CreateToggle({Name="AimSilent", Callback=function(v) Flags.AimSilent=v end})
-CombatTab:CreateToggle({Name="Hitbox Expander", Callback=function(v) Flags.Hitbox=v end})
-CombatTab:CreateToggle({Name="Kill Aura", Callback=function(v) Flags.KillAura=v end})
+CombatTab:CreateToggle({Name="Aimbot (RMB)",CurrentValue=false,Callback=function(v)Flags.Aimbot=v end})
+CombatTab:CreateToggle({Name="AimSilent",CurrentValue=false,Callback=function(v)Flags.AimSilent=v end})
+CombatTab:CreateToggle({Name="Hitbox Expander",CurrentValue=false,Callback=function(v)Flags.Hitbox=v end})
+CombatTab:CreateToggle({Name="Kill Aura",CurrentValue=false,Callback=function(v)Flags.KillAura=v end})
 
-VisualTab:CreateToggle({Name="ESP", Callback=function(v) Flags.ESP=v end})
+VisualTab:CreateToggle({Name="ESP",CurrentValue=false,Callback=function(v)Flags.ESP=v end})
 
-PlayerTab:CreateToggle({Name="Infinite Ammo", Callback=function(v) Flags.InfiniteAmmo=v end})
-PlayerTab:CreateToggle({Name="Fast Reload", Callback=function(v) Flags.FastReload=v end})
-PlayerTab:CreateToggle({Name="Speed Boost on Shoot", Callback=function(v) Flags.SpeedShoot=v end})
-PlayerTab:CreateToggle({Name="No Recoil", Callback=function(v) Flags.NoRecoil=v end})
-PlayerTab:CreateToggle({Name="No Ability Cooldown", Callback=function(v) Flags.NoCooldown=v end})
+PlayerTab:CreateToggle({Name="Infinite Ammo",CurrentValue=false,Callback=function(v)Flags.InfiniteAmmo=v end})
+PlayerTab:CreateToggle({Name="Fast Reload",CurrentValue=false,Callback=function(v)Flags.FastReload=v end})
+PlayerTab:CreateToggle({Name="Speed Boost on Shoot",CurrentValue=false,Callback=function(v)Flags.SpeedShoot=v end})
+PlayerTab:CreateToggle({Name="No Recoil",CurrentValue=false,Callback=function(v)Flags.NoRecoil=v end})
+PlayerTab:CreateToggle({Name="No Ability Cooldown",CurrentValue=false,Callback=function(v)Flags.NoCooldown=v end})
 
 MiscTab:CreateButton({
     Name = "Infinite Yield",

@@ -1,18 +1,30 @@
---// FLUENT LOAD COM PROTEÇÃO
-local Fluent, FluentError = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
-if not Fluent then
-    game:GetService("StarterGui"):SetCore("SendNotification", {
-        Title = "Erro",
-        Text = "Falha ao carregar Fluent UI",
-        Duration = 5
-    })
-    return
+--// Load Fluent safely
+local Fluent
+do
+    local ok, lib = pcall(function()
+        return loadstring(game:HttpGet(
+            "https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"
+        ))()
+    end)
+
+    if not ok or not lib then
+        warn("Failed to load Fluent UI")
+        return
+    end
+
+    Fluent = lib
 end
 
-local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/SaveManager.lua"))()
-local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua"))()
+--// Addons
+local SaveManager = loadstring(game:HttpGet(
+    "https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/SaveManager.lua"
+))()
 
---// EXECUTOR COM VALOR PADRÃO
+local InterfaceManager = loadstring(game:HttpGet(
+    "https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua"
+))()
+
+--// EXECUTOR
 local executor = "Unknown"
 if identifyexecutor then
     executor = identifyexecutor() or "Unknown"
@@ -38,23 +50,18 @@ local Flags = {
     KillAura = false
 }
 
---// VERIFICAR SE O JOGO CARREGOU
-if not LP or not LP.Character then
-    LP.CharacterAdded:Wait()
-end
-
-------------------------------------------------
--- WINDOW
-------------------------------------------------
+--// Window
 local Window = Fluent:CreateWindow({
     Title = "Hypershoot | Private",
     SubTitle = "Executor: " .. executor,
+    TabWidth = 160,
     Size = UDim2.fromOffset(600, 480),
     Acrylic = false,
     Theme = "Dark",
     MinimizeKey = Enum.KeyCode.LeftControl
 })
 
+--// Tabs
 local Tabs = {
     Combat = Window:AddTab({ Title = "Combat", Icon = "crosshair" }),
     Visual = Window:AddTab({ Title = "Visual", Icon = "eye" }),
@@ -226,6 +233,36 @@ Tabs.Visual:AddToggle("Hitbox", {
     Callback = function(v) Flags.Hitbox = v end
 })
 
+-- Adicione mais elementos de exemplo se a UI não aparecer
+Tabs.Misc:AddButton({
+    Title = "Test Button",
+    Description = "Clique para testar",
+    Callback = function()
+        Fluent:Notify({
+            Title = "Teste",
+            Content = "Botão funcionando!",
+            Duration = 3
+        })
+    end
+})
+
+Tabs.Misc:AddSlider("TestSlider", {
+    Title = "Test Slider",
+    Description = "Apenas para teste",
+    Min = 0,
+    Max = 100,
+    Default = 50,
+    Rounding = 0,
+    Callback = function(Value)
+        print("Slider value:", Value)
+    end
+})
+
+------------------------------------------------
+-- OPTIONS
+------------------------------------------------
+local Options = Fluent.Options
+
 ------------------------------------------------
 -- SETTINGS / SAVE
 ------------------------------------------------
@@ -243,6 +280,22 @@ Window:SelectTab(1)
 
 Fluent:Notify({
     Title = "Loaded",
-    Content = "Script carregado com sucesso",
+    Content = "Hypershoot carregado com sucesso!",
     Duration = 5
 })
+
+print("Script carregado completamente")
+warn("Hypershoot UI deve aparecer agora")
+
+-- Verificação final
+if Window then
+    print("✓ Janela criada com sucesso")
+else
+    warn("✗ Falha ao criar janela")
+end
+
+if Tabs.Combat then
+    print("✓ Tab Combat criada")
+else
+    warn("✗ Falha ao criar tab Combat")
+end

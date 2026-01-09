@@ -1,5 +1,7 @@
 -- RAYFIELD
-local Rayfield = loadstring(game:HttpGet("https://sirius.menu/rayfield"))()
+local Rayfield = loadstring(game:HttpGet(
+    "https://raw.githubusercontent.com/shlexware/Rayfield/main/source.lua"
+))()
 
 local Window = Rayfield:CreateWindow({
     Name = "Hypershoot | Private Test Panel",
@@ -186,3 +188,4 @@ MiscTab:CreateButton({
         loadstring(game:HttpGet("https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source"))()
     end
 })
+

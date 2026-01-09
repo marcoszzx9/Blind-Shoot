@@ -1,13 +1,24 @@
---// FLUENT LOAD
-local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
+--// FLUENT LOAD COM PROTEÇÃO
+local Fluent, FluentError = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
+if not Fluent then
+    game:GetService("StarterGui"):SetCore("SendNotification", {
+        Title = "Erro",
+        Text = "Falha ao carregar Fluent UI",
+        Duration = 5
+    })
+    return
+end
+
 local SaveManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/SaveManager.lua"))()
 local InterfaceManager = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/master/Addons/InterfaceManager.lua"))()
 
---// EXECUTOR
-local executor =
-    identifyexecutor and identifyexecutor()
-    or getexecutorname and getexecutorname()
-    or "Unknown"
+--// EXECUTOR COM VALOR PADRÃO
+local executor = "Unknown"
+if identifyexecutor then
+    executor = identifyexecutor() or "Unknown"
+elseif getexecutorname then
+    executor = getexecutorname() or "Unknown"
+end
 
 --// SERVICES
 local Players = game:GetService("Players")
@@ -26,6 +37,11 @@ local Flags = {
     Hitbox = false,
     KillAura = false
 }
+
+--// VERIFICAR SE O JOGO CARREGOU
+if not LP or not LP.Character then
+    LP.CharacterAdded:Wait()
+end
 
 ------------------------------------------------
 -- WINDOW
@@ -51,10 +67,7 @@ local Tabs = {
 ------------------------------------------------
 Tabs.Combat:AddParagraph({
     Title = "Account Info",
-    Content =
-        "User: " .. LP.Name ..
-        "\nUserId: " .. LP.UserId ..
-        "\nExecutor: " .. executor
+    Content = "User: " .. LP.Name .. "\nUserId: " .. LP.UserId .. "\nExecutor: " .. executor
 })
 
 ------------------------------------------------
@@ -181,7 +194,7 @@ RunService.Heartbeat:Connect(function()
 end)
 
 ------------------------------------------------
--- UI TOGGLES (FUNCIONANDO)
+-- UI TOGGLES
 ------------------------------------------------
 Tabs.Combat:AddToggle("Aimbot", {
     Title = "Aimbot (RMB)",

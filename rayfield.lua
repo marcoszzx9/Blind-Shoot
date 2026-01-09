@@ -1,13 +1,31 @@
---// RAYFIELD
-local Rayfield = loadstring(game:HttpGet("https://sirius.menu/rayfield"))()
+--------------------------------------------------
+-- FLUENT UI (LINK CORRETO)
+--------------------------------------------------
+local Fluent = loadstring(game:HttpGet(
+    "https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"
+))()
 
---// EXECUTOR DETECT
+local Window = Fluent:CreateWindow({
+    Title = "Hypershoot | Private Test Panel",
+    SubTitle = "Anti-Cheat Testing Build",
+    TabWidth = 160,
+    Size = UDim2.fromOffset(580, 460),
+    Acrylic = false, -- melhor pra Solara
+    Theme = "Dark",
+    MinimizeKey = Enum.KeyCode.RightControl
+})
+
+--------------------------------------------------
+-- EXECUTOR DETECT
+--------------------------------------------------
 local executor =
     identifyexecutor and identifyexecutor()
     or getexecutorname and getexecutorname()
     or "Unknown"
 
---// SERVICES
+--------------------------------------------------
+-- SERVICES
+--------------------------------------------------
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local UIS = game:GetService("UserInputService")
@@ -16,35 +34,9 @@ local Camera = workspace.CurrentCamera
 local LP = Players.LocalPlayer
 local Mouse = LP:GetMouse()
 
---// WINDOW
-local Window = Rayfield:CreateWindow({
-    Name = "Hypershoot | Private Test Panel",
-    LoadingTitle = "Hypershoot",
-    LoadingSubtitle = "Anti-Cheat Testing Build",
-    ConfigurationSaving = {
-        Enabled = true,
-        FolderName = "Hypershoot",
-        FileName = "PrivatePanel"
-    },
-    Theme = "Dark"
-})
-
---// TABS
-local CombatTab = Window:CreateTab("Combat", 4483362458)
-local VisualTab = Window:CreateTab("Visual", 4483362458)
-local PlayerTab = Window:CreateTab("Player", 4483362458)
-local MiscTab   = Window:CreateTab("Misc",   4483362458)
-
---// INFO
-CombatTab:CreateParagraph({
-    Title = "Account Info",
-    Content =
-        "User: "..LP.Name..
-        "\nUserId: "..LP.UserId..
-        "\nExecutor: "..executor
-})
-
---// FLAGS
+--------------------------------------------------
+-- FLAGS
+--------------------------------------------------
 local Flags = {
     Aimbot = false,
     AimSilent = false,
@@ -58,9 +50,30 @@ local Flags = {
     NoCooldown = false
 }
 
-------------------------------------------------
+--------------------------------------------------
+-- TABS
+--------------------------------------------------
+local Tabs = {
+    Combat = Window:AddTab({ Title = "Combat", Icon = "swords" }),
+    Visual = Window:AddTab({ Title = "Visual", Icon = "eye" }),
+    Player = Window:AddTab({ Title = "Player", Icon = "user" }),
+    Misc   = Window:AddTab({ Title = "Misc", Icon = "settings" }),
+}
+
+--------------------------------------------------
+-- INFO SECTION
+--------------------------------------------------
+Tabs.Combat:AddParagraph({
+    Title = "Account Info",
+    Content =
+        "User: " .. LP.Name ..
+        "\nUserId: " .. LP.UserId ..
+        "\nExecutor: " .. executor
+})
+
+--------------------------------------------------
 -- UTILS
-------------------------------------------------
+--------------------------------------------------
 local function isEnemy(char)
     if not LP.Character then return false end
     return char
@@ -87,9 +100,9 @@ local function getClosestEnemy()
     return closest
 end
 
-------------------------------------------------
+--------------------------------------------------
 -- AIMBOT
-------------------------------------------------
+--------------------------------------------------
 RunService.RenderStepped:Connect(function()
     if Flags.Aimbot and UIS:IsMouseButtonPressed(Enum.UserInputType.MouseButton2) then
         local t = getClosestEnemy()
@@ -99,9 +112,9 @@ RunService.RenderStepped:Connect(function()
     end
 end)
 
-------------------------------------------------
+--------------------------------------------------
 -- AIMSILENT
-------------------------------------------------
+--------------------------------------------------
 local old
 old = hookmetamethod(game, "__index", function(self, key)
     if Flags.AimSilent and self == Mouse and key == "Hit" then
@@ -113,9 +126,9 @@ old = hookmetamethod(game, "__index", function(self, key)
     return old(self, key)
 end)
 
-------------------------------------------------
+--------------------------------------------------
 -- HITBOX
-------------------------------------------------
+--------------------------------------------------
 RunService.Heartbeat:Connect(function()
     if not Flags.Hitbox then return end
     for _, p in pairs(Players:GetPlayers()) do
@@ -131,9 +144,9 @@ RunService.Heartbeat:Connect(function()
     end
 end)
 
-------------------------------------------------
+--------------------------------------------------
 -- ESP
-------------------------------------------------
+--------------------------------------------------
 local ESPCache = {}
 
 local function applyESP(char)
@@ -153,9 +166,9 @@ local function clearESP()
     ESPCache = {}
 end
 
-------------------------------------------------
+--------------------------------------------------
 -- KILL AURA
-------------------------------------------------
+--------------------------------------------------
 RunService.Heartbeat:Connect(function()
     if not Flags.KillAura then return end
     local lhrp = LP.Character and LP.Character:FindFirstChild("HumanoidRootPart")
@@ -172,9 +185,9 @@ RunService.Heartbeat:Connect(function()
     end
 end)
 
-------------------------------------------------
+--------------------------------------------------
 -- AMMO / RECOIL / COOLDOWN
-------------------------------------------------
+--------------------------------------------------
 local function applyGC()
     for _, v in next, getgc(true) do
         if typeof(v) == "table" then
@@ -195,9 +208,9 @@ local function applyGC()
     end
 end
 
-------------------------------------------------
+--------------------------------------------------
 -- SPEED ON SHOOT
-------------------------------------------------
+--------------------------------------------------
 local function hookTool(tool)
     if tool:IsA("Tool") then
         tool.Activated:Connect(function()
@@ -224,9 +237,9 @@ LP.CharacterAdded:Connect(function(char)
     char.ChildAdded:Connect(hookTool)
 end)
 
-------------------------------------------------
+--------------------------------------------------
 -- RENDER LOOP
-------------------------------------------------
+--------------------------------------------------
 RunService.RenderStepped:Connect(function()
     if Flags.ESP then
         for _, p in pairs(Players:GetPlayers()) do
@@ -240,25 +253,84 @@ RunService.RenderStepped:Connect(function()
     applyGC()
 end)
 
-------------------------------------------------
--- RAYFIELD TOGGLES (FIXED)
-------------------------------------------------
-CombatTab:CreateToggle({Name="Aimbot (RMB)",CurrentValue=false,Callback=function(v)Flags.Aimbot=v end})
-CombatTab:CreateToggle({Name="AimSilent",CurrentValue=false,Callback=function(v)Flags.AimSilent=v end})
-CombatTab:CreateToggle({Name="Hitbox Expander",CurrentValue=false,Callback=function(v)Flags.Hitbox=v end})
-CombatTab:CreateToggle({Name="Kill Aura",CurrentValue=false,Callback=function(v)Flags.KillAura=v end})
+--------------------------------------------------
+-- UI TOGGLES (FLUENT)
+--------------------------------------------------
+Tabs.Combat:AddToggle("Aimbot", {
+    Title = "Aimbot (RMB)",
+    Default = false,
+    Callback = function(v) Flags.Aimbot = v end
+})
 
-VisualTab:CreateToggle({Name="ESP",CurrentValue=false,Callback=function(v)Flags.ESP=v end})
+Tabs.Combat:AddToggle("AimSilent", {
+    Title = "AimSilent",
+    Default = false,
+    Callback = function(v) Flags.AimSilent = v end
+})
 
-PlayerTab:CreateToggle({Name="Infinite Ammo",CurrentValue=false,Callback=function(v)Flags.InfiniteAmmo=v end})
-PlayerTab:CreateToggle({Name="Fast Reload",CurrentValue=false,Callback=function(v)Flags.FastReload=v end})
-PlayerTab:CreateToggle({Name="Speed Boost on Shoot",CurrentValue=false,Callback=function(v)Flags.SpeedShoot=v end})
-PlayerTab:CreateToggle({Name="No Recoil",CurrentValue=false,Callback=function(v)Flags.NoRecoil=v end})
-PlayerTab:CreateToggle({Name="No Ability Cooldown",CurrentValue=false,Callback=function(v)Flags.NoCooldown=v end})
+Tabs.Combat:AddToggle("Hitbox", {
+    Title = "Hitbox Expander",
+    Default = false,
+    Callback = function(v) Flags.Hitbox = v end
+})
 
-MiscTab:CreateButton({
-    Name = "Infinite Yield",
+Tabs.Combat:AddToggle("KillAura", {
+    Title = "Kill Aura",
+    Default = false,
+    Callback = function(v) Flags.KillAura = v end
+})
+
+Tabs.Visual:AddToggle("ESP", {
+    Title = "ESP",
+    Default = false,
+    Callback = function(v) Flags.ESP = v end
+})
+
+Tabs.Player:AddToggle("InfiniteAmmo", {
+    Title = "Infinite Ammo",
+    Default = false,
+    Callback = function(v) Flags.InfiniteAmmo = v end
+})
+
+Tabs.Player:AddToggle("FastReload", {
+    Title = "Fast Reload",
+    Default = false,
+    Callback = function(v) Flags.FastReload = v end
+})
+
+Tabs.Player:AddToggle("SpeedShoot", {
+    Title = "Speed Boost on Shoot",
+    Default = false,
+    Callback = function(v) Flags.SpeedShoot = v end
+})
+
+Tabs.Player:AddToggle("NoRecoil", {
+    Title = "No Recoil",
+    Default = false,
+    Callback = function(v) Flags.NoRecoil = v end
+})
+
+Tabs.Player:AddToggle("NoCooldown", {
+    Title = "No Ability Cooldown",
+    Default = false,
+    Callback = function(v) Flags.NoCooldown = v end
+})
+
+Tabs.Misc:AddButton({
+    Title = "Infinite Yield",
+    Description = "Admin Commands",
     Callback = function()
-        loadstring(game:HttpGet("https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source"))()
+        loadstring(game:HttpGet(
+            "https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source"
+        ))()
     end
+})
+
+--------------------------------------------------
+-- NOTIFY
+--------------------------------------------------
+Fluent:Notify({
+    Title = "Fluent Loaded",
+    Content = "UI carregada com sucesso",
+    Duration = 5
 })
